@@ -19,7 +19,9 @@ class ::Capistrano::Deploy::Strategy::JenkinsArtifact < ::Capistrano::Deploy::St
       case res
       when Net::HTTPSuccess
         if /\Aapplication\/json\b/ === (res.content_type || '')
-          JSON.parse(res.body)
+          # `0x08` (`\b`) is easily inserted in Japanese FEP of Mac OSX and Jenkins returns
+          # breaking JSON response that including ASCII control charcters. :(
+          JSON.parse(res.body.delete("\b"))
         end
       end
     end
